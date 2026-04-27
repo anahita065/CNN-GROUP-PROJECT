@@ -1,0 +1,61 @@
+model:
+  architecture: resnet18
+  training_modes:
+    - scratch
+    - finetune
+    - linear_probe
+
+datasets:
+  names:
+    - cifar10
+    - cifar100
+    - tiny_imagenet
+  root: ./data
+  fractions:
+    - 0.10
+    - 0.25
+    - 0.50
+    - 1.00
+  num_workers: 4
+  # 224 matches ImageNet pretraining resolution; keeps all three modes comparable.
+  image_size: 224
+
+training:
+  batch_size: 64
+  num_epochs:
+    scratch: 100
+    finetune: 50
+    linear_probe: 30
+  learning_rates:
+    scratch: 0.01
+    finetune: 1.0e-4
+    linear_probe: 0.01
+  weight_decay: 1.0e-4
+  momentum: 0.9
+  optimizer: sgd          # sgd | adam
+  scheduler:
+    warmup_epochs: 5      # Linear warmup then cosine decay
+  label_smoothing: 0.1    # Regularises overconfident predictions
+  grad_clip: 1.0          # Gradient norm clipping
+  num_seeds: 3            # Random seeds for error-bar estimation
+  device: cuda            # cuda | cpu
+
+# Layers used for CKA representation analysis (paths relative to ResNet backbone).
+cka:
+  num_samples: 1000       # Validation samples fed through the network for CKA
+  layers:
+    - conv1               # Stage 0 – initial 7x7 stem
+    - layer1.1.conv2      # Stage 1, Block 2, second conv
+    - layer2.1.conv2      # Stage 2, Block 2, second conv
+    - layer3.1.conv2      # Stage 3, Block 2, second conv
+    - layer4.1.conv2      # Stage 4, Block 2, second conv
+    - avgpool             # Global average pool (pre-classifier representation)
+
+visualization:
+  output_dir: ./results/plots
+  figure_dpi: 150
+  figure_format: png
+
+results:
+  checkpoint_dir: ./results/checkpoints
+  metrics_dir: ./results/metrics

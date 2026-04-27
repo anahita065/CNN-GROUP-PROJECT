@@ -1,0 +1,65 @@
+# Quick smoke-test config — CIFAR-10 only, tiny epochs, 32x32 images.
+# Use this to verify the pipeline end-to-end on CPU.
+# Switch to config_CNN.yml (with a GPU) for real experiments.
+
+model:
+  architecture: resnet18
+  training_modes:
+    - scratch
+    - finetune
+    - linear_probe
+
+datasets:
+  names:
+    - cifar10
+    - cifar100
+    # tiny_imagenet requires manual download:
+    #   wget http://cs231n.stanford.edu/tiny-imagenet-200.zip
+    #   unzip tiny-imagenet-200.zip -d ./data/
+    # Then uncomment the line below:
+    # - tiny_imagenet
+  root: ./data
+  fractions:
+    - 0.10
+    - 1.00
+  num_workers: 0        # 0 = main-process loading (avoids Windows multiprocessing issues)
+  image_size: 32        # native CIFAR size — much faster on CPU than 224
+
+training:
+  batch_size: 128
+  num_epochs:
+    scratch: 3
+    finetune: 2
+    linear_probe: 2
+  learning_rates:
+    scratch: 0.01
+    finetune: 1.0e-4
+    linear_probe: 0.01
+  weight_decay: 1.0e-4
+  momentum: 0.9
+  optimizer: sgd
+  scheduler:
+    warmup_epochs: 1
+  label_smoothing: 0.1
+  grad_clip: 1.0
+  num_seeds: 1
+  device: cpu
+
+cka:
+  num_samples: 200
+  layers:
+    - conv1
+    - layer1.1.conv2
+    - layer2.1.conv2
+    - layer3.1.conv2
+    - layer4.1.conv2
+    - avgpool
+
+visualization:
+  output_dir: ./results/plots
+  figure_dpi: 150
+  figure_format: png
+
+results:
+  checkpoint_dir: ./results/checkpoints
+  metrics_dir: ./results/metrics

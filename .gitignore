@@ -1,0 +1,39 @@
+# Datasets (large, re-downloadable)
+data/
+
+# Model checkpoints (large binary files)
+results/checkpoints/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code internal files
+.claude/
+
+# Logs and temp
+*.log
+*.tmp
+
+# Keep results/plots and results/metrics (small JSON + PNGs worth sharing)
+!results/plots/
+!results/metrics/
