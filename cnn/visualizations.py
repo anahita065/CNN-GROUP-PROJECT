@@ -341,7 +341,7 @@ def plot_feature_tsne(
     y = labels.numpy()
 
     perplexity = min(30, max(5, X.shape[0] // 10))
-    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42, n_iter=1000)
+    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42, max_iter=1000)
     X2d = tsne.fit_transform(X)
 
     n_show = min(num_classes, 10)   # cap legend at 10 classes for readability
