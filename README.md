@@ -49,6 +49,20 @@ When we take 10% of the data, we want to make sure all classes are still represe
 
 ---
 
+## Checkpoints
+
+Pre-trained model weights for all runs are available on Google Drive:
+
+**[Download checkpoints](https://drive.google.com/drive/folders/1w_SDW6sDYIt6J8GlDDBWwntAjXvAc1k0?usp=sharing)**
+
+Download and place the contents under `results/checkpoints/`. Once in place, you can skip training entirely and go straight to plot generation:
+
+```bash
+python run_cnn.py --config config_CNN_test.yml --skip-train
+```
+
+---
+
 ## Setup
 
 You need Python 3.10+ and a virtual environment.
