@@ -1,40 +1,43 @@
-"""ResNet-18 with three transfer-learning modes and forward-hook feature extraction."""
+"""ResNet feature extractor supporting resnet18 and resnet50 with three transfer-learning modes."""
 
 import torch
 import torch.nn as nn
 from torchvision import models
 from typing import Dict, List, Optional
 
+_ARCH_MAP = {
+    "resnet18": (models.resnet18, models.ResNet18_Weights.IMAGENET1K_V1),
+    "resnet50": (models.resnet50, models.ResNet50_Weights.IMAGENET1K_V1),
+}
+
 
 class ResNetExtractor(nn.Module):
-    """ResNet-18 supporting scratch / fine-tune / linear-probe training modes.
+    """ResNet supporting scratch / fine-tune / linear-probe training modes.
 
     Intermediate activations are extracted through PyTorch forward hooks,
     spatially averaged to a flat vector so they are directly usable for CKA.
     """
 
-    def __init__(self, num_classes: int, mode: str = "scratch"):
+    def __init__(self, num_classes: int, mode: str = "scratch", arch: str = "resnet18"):
         super().__init__()
         if mode not in ("scratch", "finetune", "linear_probe"):
             raise ValueError(f"mode must be scratch | finetune | linear_probe, got {mode!r}")
+        if arch not in _ARCH_MAP:
+            raise ValueError(f"arch must be one of {list(_ARCH_MAP)}, got {arch!r}")
 
-        weights = (
-            None
-            if mode == "scratch"
-            else models.ResNet18_Weights.IMAGENET1K_V1
-        )
-        self.backbone = models.resnet18(weights=weights)
-        # Replace classifier head for the target dataset
+        model_fn, weights_cls = _ARCH_MAP[arch]
+        weights = None if mode == "scratch" else weights_cls
+        self.backbone = model_fn(weights=weights)
         self.backbone.fc = nn.Linear(self.backbone.fc.in_features, num_classes)
 
         if mode == "linear_probe":
-            # Freeze everything; only the new head trains
             for p in self.backbone.parameters():
                 p.requires_grad = False
             for p in self.backbone.fc.parameters():
                 p.requires_grad = True
 
         self.mode = mode
+        self.arch = arch
         self._handles: Dict[str, object] = {}
         self._features: Dict[str, torch.Tensor] = {}
 

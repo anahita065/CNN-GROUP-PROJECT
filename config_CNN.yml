@@ -1,5 +1,7 @@
 model:
-  architecture: resnet18
+  architectures:
+    - resnet18
+    - resnet50
   training_modes:
     - scratch
     - finetune
@@ -40,16 +42,23 @@ training:
   num_seeds: 3            # Random seeds for error-bar estimation
   device: cuda            # cuda | cpu
 
-# Layers used for CKA representation analysis (paths relative to ResNet backbone).
 cka:
   num_samples: 1000       # Validation samples fed through the network for CKA
   layers:
-    - conv1               # Stage 0 – initial 7x7 stem
-    - layer1.1.conv2      # Stage 1, Block 2, second conv
-    - layer2.1.conv2      # Stage 2, Block 2, second conv
-    - layer3.1.conv2      # Stage 3, Block 2, second conv
-    - layer4.1.conv2      # Stage 4, Block 2, second conv
-    - avgpool             # Global average pool (pre-classifier representation)
+    resnet18:
+      - conv1               # Stage 0 – initial 7x7 stem
+      - layer1.1.conv2      # Stage 1, Block 2, second conv
+      - layer2.1.conv2      # Stage 2, Block 2, second conv
+      - layer3.1.conv2      # Stage 3, Block 2, second conv
+      - layer4.1.conv2      # Stage 4, Block 2, second conv
+      - avgpool             # Global average pool (pre-classifier representation)
+    resnet50:
+      - conv1               # Stage 0 – initial 7x7 stem
+      - layer1.1.conv3      # Stage 1, Block 2, third conv (bottleneck)
+      - layer2.1.conv3      # Stage 2, Block 2, third conv
+      - layer3.1.conv3      # Stage 3, Block 2, third conv
+      - layer4.1.conv3      # Stage 4, Block 2, third conv
+      - avgpool             # Global average pool
 
 visualization:
   output_dir: ./results/plots
